@@ -1,3 +1,4 @@
-export const getAdmin = (req, res) => {
-  res.send("admin from GET method");
+export const createSong = async (req, res) => {
+  try {
+  } catch (error) {}
 };

@@ -8,14 +8,25 @@ import albumRoutes from "./routes/album.routes.js";
 import statRoutes from "./routes/stat.routes.js";
 import { connectDB } from "./lib/db.js";
 import dotenv from "dotenv";
+import fileupload from "express-fileupload";
+import path from "path";
 
 dotenv.config();
 
+const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(clerkMiddleware()); // this add auth to req object => req.auth.userId
+app.use(
+  fileupload({
+    useTempFiles: true,
+    tempFileDir: path.join(__dirname, "tmp"),
+    createParentPath: true,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10mb max
+  })
+);
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
