@@ -35,6 +35,17 @@ app.use("/api/songs", songRoutes);
 app.use("/api/albums", albumRoutes);
 app.use("/api/stats", statRoutes);
 
+//error handler
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.status(500).json({
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Intrnal Server Error"
+        : err.message,
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   connectDB();
