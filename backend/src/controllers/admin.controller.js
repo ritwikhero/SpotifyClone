@@ -48,3 +48,66 @@ export const createSong = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteSong = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const song = await Song.findById(id);
+    //if song belongs to an album remove it and update album
+
+    if (song.albumId) {
+      await Album.findByIdAndUpdate(song.albumId, {
+        $pull: { songs: song._id },
+      });
+    }
+
+    await Song.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Song deleted successfully" });
+  } catch (error) {
+    console.log("Error in Delete song controller", error);
+
+    next(error);
+  }
+};
+
+export const createAlbum = async (req, res, next) => {
+  try {
+    const { title, artist, releaseYear } = req.body;
+    const { imageFile } = req.files;
+
+    const imageUrl = await uploadToCloudinary(imageFile);
+
+    const album = await Album.create({
+      title,
+      artist,
+      releaseYear,
+      imageUrl,
+    });
+
+    await album.save();
+
+    res
+      .status(201)
+      .json({ message: "Album created successfully", data: album });
+  } catch (error) {
+    console.log("Error in create album controller", error);
+    next(error);
+  }
+};
+
+export const deleteAlbum = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await Song.deleteMany({ albumId: id });
+    await Album.findByIdAndDelete(id);
+    res.status(200).json({ message: "Album deleted successfully" });
+  } catch (error) {
+    console.log("Error in delete album controller", error);
+    next(error);
+  }
+};
+
+export const checkAdmin = async (req, res, next) => {
+  res.status(200).json({ admin: true });
+};
